@@ -34,22 +34,21 @@ Note:
 1)  The prob mass function is a floating point number in binary
 	eg: 
 	
-		```
+		
 		If 	S = 2 k=2 
 	
 			T(s0,s0) = 1/4	= 0.01 
 			T(s0,s1) = 3/4	= 0.11
 			T(s1,s0) = 0	= 0.00 
 			T(s1,s1) = 1	= 1.00
-		```
-		File will be :
-		(the point is omitted when giving input)
-		```
+		
+	File will be :
+	(the point is omitted when giving input)
+	
 		$ cat inp_file
 		2 2 0 1
 		001 011
 		000 100
-		```
 
 2)  All the |S|^2 transition probabilities thus written must be of same length.	Thus in the above example , 1.0 is written as 100 and not 10
 
