@@ -7,7 +7,7 @@ This tool uses approxMC to calculate bounded reachability probability of a given
 __Usage:__
 
 ```
-$ python3 MC_to_SAT.py inp_file out_file
+$ python3 BMC_SAT.py inp_file out_file
 ```
 
 __Dependencies:__
@@ -55,12 +55,12 @@ Note:
 __Examples:__
 
 ```
-$ python3 MC_to_SAT.py inputs/inp1 outputs/out1 
+$ python3 BMC_SAT.py inputs/inp1 outputs/out1 
 
 No. of SATisfying Assignments	: 15
 Rechability Probability		: 0.9375
 
-$ python3 MC_to_SAT.py inputs/inp2 outputs/out2 
+$ python3 BMC_SAT.py inputs/inp2 outputs/out2 
 
 No. of SATisfying Assignments	: 6
 Rechability Probability		: 0.75
