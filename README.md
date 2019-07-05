@@ -10,9 +10,9 @@ For Markov Chains
 $ cd MC_solver
 $ python3 BMC_SAT.py inp_file out_file
 ```
-Details on input file provided later
+Input file details provided later
 
-
+===============================================================
 For MDPs: 
 ```
 $ cd MDP_solver
@@ -44,11 +44,10 @@ __Dependencies:__
 2) Python binarytree	:	https://pypi.org/project/binarytree/
 
 
-__Input for Markov Chains__
 
 ===============================================================
 
-__Input file format:__
+__Input for Markov Chains__
 
 	--No.of States-- --k-- --ini_S-- --tgt_S--
 	--probability mass function for state 1--
