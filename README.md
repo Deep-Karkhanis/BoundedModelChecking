@@ -12,28 +12,28 @@ $ python3 BMC_SAT.py inp_file out_file
 ```
 Input file details provided later
 
-===============================================================
+===============================================================\
 For MDPs: 
 ```
 $ cd MDP_solver
 $ python3 BMC_SAT.py inp_file out_file _k_ _lambda_ _maxiters_
 ```
-Here:
-   1) Input file should be in DRN format
-   2) _k_ is the step limit 
-   3) _lambda_ is the lower bound on reachability probability to be checked
-   4) _maxiters_ is the maximum number of iterations for policy_iteration algorithm
+    Here:
+	1) Input file should be in DRN format
+	2) _k_ is the step limit 
+	3) _lambda_ is the lower bound on reachability probability to be checked
+	4) _maxiters_ is the maximum number of iterations for policy_iteration algorithm
   
 For MDPs (actions encoded into the SAT formula itself): 
 ```
 $ cd MDP_act-bit_SAT
 $ python3 BMC_SAT.py inp_file out_file _k_ _lambda_ _maxiters_
 ```
-Here:
-   1) Input file should be in DRN format
-   2) _k_ is the step limit 
-   3) _lambda_ is the lower bound on reachability probability to be checked
-   4) _maxiters_ is the maximum number of iterations for policy_iteration algorithm
+     Here:
+	1) Input file should be in DRN format
+	2) _k_ is the step limit 
+	3) _lambda_ is the lower bound on reachability probability to be checked
+	4) _maxiters_ is the maximum number of iterations for policy_iteration algorithm
 
 
 
