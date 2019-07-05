@@ -1,0 +1,8 @@
+c write any comment
+c
+p cnf --no_of_vars-- --no_of_clauses--
+c
+c
+--index of clause-- --literals-- 0
+--index of clause-- --literals-- 0
+--index of clause-- --literals-- 0
