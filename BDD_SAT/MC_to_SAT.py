@@ -1,4 +1,3 @@
-import pmf_to_SAT as pmf_SAT
 import sys
 import os
 import math
@@ -15,10 +14,12 @@ TR_LE 	= 5
 vars_Step = []
 litCorr = dict()
 
-def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file,trace_file):
+def MC_to_SAT1(ini_S_inp, tgt_S_inp, bdd_inp, coins_inp ,K_inp,trace_file,out_file=""):
 	# func_argv = ["",inp_file,out_file,trace_file]
 	# value is scaled to coins
-	
+	global vars_Step
+	global litCorr
+
 	def equi_clause(p,q):
 			clses = []
 			clses.append([[not(p[0]),p[1]],q])
@@ -61,9 +62,10 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 			v = vars_Step[v_i]
 			litCorr[inps.index(v)] = v_i + 1
 		
+		print(len(inps))
 
 
-	def parse_Ast(expr_ast)
+	def parse_Ast(expr_ast):
 		# lits = set()
 		lits = 0
 		clauses = []
@@ -85,21 +87,21 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 			lit = expr_ast[1]
 			if lit < 0:
 				lits = -1*lit
-				clauses = [[ [litCorr[lits] False] ]]
+				clauses = [[ [litCorr[lits], False] ]]
 			else:
 				lits = lit
-				clauses = [[ [litCorr[lits] True] ]]
+				clauses = [[ [litCorr[lits], True] ]]
 			
 		if expr_ast[0] == 'const':
 			lits = 1
 			if expr_ast[1] == 1:
-				clauses = [[ [1 True] [1 False] ]]
+				clauses = [[ [1, True] [1, False] ]]
 			if expr_ast[1] == 0:
-				clauses = [[ [1 True] ] [ [1 False] ]]
+				clauses = [[ ]]
 			
+		return clauses,lits
 
 
-	S = S_inp
 	clauses=[]
 	K = K_inp
 	tgt_S = tgt_S_inp
@@ -125,8 +127,16 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 			I.append([False,[ST_BITS,0,i1]])
 		else:
 			I.append([True,[ST_BITS,0,i1]])
+	
+	F = []
+	for i1 in range(len(tgt_S)):
+		x = tgt_S[i1]
+		if x==0:
+			F.append([False,[ST_BITS,0,i1]])
+		else:
+			I.append([True,[ST_BITS,0,i1]])
 
-	clauses = clauses + I
+	# clauses = clauses + I
 
 	par_cond = [[] for x in range(len(bdd[0]) + len(bdd[1])+1)] 
 	par_expr = [[] for x in range(len(bdd[0]) + len(bdd[1])+1)] 
@@ -135,11 +145,11 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 	
 	bdd_vars = [exprvar(("bdd_"+str(x))) for x in range(len(bdd[0]) + len(bdd[1])+1)]
 	
-	vars_Set += bdd_vars
+	vars_Step += bdd_vars[1:]
 	# for var_i in range(1,len(bdd_vars)):
 	# 	vars_Step[bdd_vars[var_i]] = var_i + (len(ini_S)*2)
 		
-	for node in bdds[0]:
+	for node in bdd[0]:
 		lcd = node[2]
 		rcd = node[3]
 		par_cond[lcd].append([get_sbit(node[1]),node[0],False])
@@ -157,13 +167,14 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 	for pc_i in range(1,len(par_cond)):
 		pc = par_cond[pc_i]
 		node_expr = expr(0)
-		for cond_i in pc:
-			if pc[2] == 0:	
-				node_expr = Or(node_expr,And(bdd_vars[pc[1]],Not(s_vars[pc[0]])))
+		for cond in pc:
+			if cond[2] == 0:	
+				node_expr = Or(node_expr,And(bdd_vars[cond[1]],Not(s_vars[cond[0]])))
 			else:	
-				node_expr = Or(node_expr,And(bdd_vars[pc[1]],s_vars[pc[0]]))
+				node_expr = Or(node_expr,And(bdd_vars[cond[1]],s_vars[cond[0]]))
 
 			# node_expr = node_expr.to_cnf()
+		node_expr = Equal(bdd_vars[pc_i],node_expr)
 		par_expr[pc_i] = node_expr.tseitin()
 	# Root of BDD true
 	par_expr[len(bdd[0]) + len(bdd[1])] = bdd_vars[len(bdd[0]) + len(bdd[1])]
@@ -201,7 +212,7 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 	for leaf_i in range(len(bdd[1])):
 		leaf = bdd[1][leaf_i]
 		val = leaf[2]
-		val = bin(int(val))[2:] 
+		# val = bin(int(val))[2:] 
 		if val[0] == '1':
 			bcnt_exprs[leaf_i] = expr(1)
 		else:	
@@ -226,7 +237,9 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 	clauses=[]	
 
 	expr_ast = sstep_expr.to_ast()
-	litCorrGen(expr_ast.inputs)
+	print(expr_ast)
+	print(sstep_expr.inputs)
+	litCorrGen(sstep_expr.inputs)
 	clauses,lits = parse_Ast(expr_ast)
 	# list of lits
 	# lit :: [no, t/f]
@@ -248,32 +261,86 @@ def MC_to_SAT1(S_inp, ini_S_inp, tgt_S_inp, bdd_inp, coins_inp, ,K_inp, out_file
 	sLtreeL_Vars = coins + sLtreeN_Vars
 	sLaux_Vars = lits  
 	
-	Fclauses = clauses
+
 	currLits = lits
 	newLits = currLits - len(ini_S)
 
+	I = []
+	for i1 in range(len(ini_S)):
+		x = ini_S[i1]
+		if x==0:
+			I.append([[1 + i1*2, False]])
+		else:
+			I.append([[1 + i1*2, True]])
+	Fclauses = I
+	
+	F = []
+	for i1 in range(len(tgt_S)):
+		x = tgt_S[i1]
+		if K>0:
+			if K==1:
+				tgtVar = 1 + i1*2 + 1
+			else:
+				tgtVar = 1 + currLits + newLits*(K-2) + i1
+		else:
+			tgtVar = 1 + i1*2
+		if x==0:
+			F.append([[tgtVar, False]])
+		else:
+			F.append([[tgtVar, True]])	
+	Fclauses += F
+
+	Fclauses += clauses
+	
 	clauses2 = []
-	for k_i in range(2,min(K+1,3)):
+	if K > 1:	
 		for clause in clauses:
 			temp = []
 			for lit in clause:
-				if lit[0] <= sLst_Vars and lit[0]%2 == 1:
-					temp.append([lit[0]+1, lit[1]])
-				else
-					temp.append([lit[0]+newLits, lit[1]])
+				if lit[0] <= sLst_Vars: 
+					if lit[0]%2 == 1:
+						temp.append([lit[0]+1, lit[1]])
+					else:
+						temp.append([(lit[0])/2 + currLits , lit[1]])	
+				else: 
+					temp.append([lit[0]+ newLits, lit[1]])
 			clauses2.append(temp)
 	Fclauses += clauses2
 
+	for clause_i in clauses:
+		clause = clauses[clause_i]
+		for lit_i in clause:
+			lit = clause[lit_i]
+			if lit[0] <= sLst_Vars: 
+				if lit[0]%2 == 1:
+					clauses[clause_i][lit_i][0] = (lit[0]+1)/2 + len(ini_S)
+				else:
+					clauses[clause_i][lit_i][0] = (lit[0])/2 + currLits	
+			else: 
+				clauses[clause_i][lit_i][0] = lit[0] + newLits
+		clauses.append(temp)
+	
 	for k_i in range(3,K+1):
-		for clause in clauses2:
+		for clause in clauses:
 			temp = []
 			for lit in clause:
-				temp.append([lit[0]+newLits, lit[1]])
+				temp.append([lit[0] + newLits*(k_i-2) , lit[1]])
 			Fclauses.append(temp)
 
 	totLits = newLits*K + currLits
 
-	return Fclauses,totLits
+	indVars = [x for x in range(1,(len(ini_S)*2)+1)]
+	indVars += [x for x in range(sLtreeN_Vars + 1, streeL_Vars + 1)]
+
+	for k_i in range(2,K+1):
+		indVars += 	(list(range(1 + currLits + (k_i-2)*newLits , 
+						 1 + currLits + (k_i-2)*newLits + len(ini_S))) \
+					+
+					 list(range(1 + currLits + (k_i-2)*newLits + sLtreeN_Vars - len(ini_S), 
+						 1 + currLits + (k_i-2)*newLits + sLtreeL_Vars - len(ini_S))))
+
+
+	return Fclauses,totLits,indVars
 
 
 
