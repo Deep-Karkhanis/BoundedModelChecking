@@ -97,3 +97,13 @@ No. of SATisfying Assignments	: 6
 Rechability Probability		: 0.75
 
 ```
+
+================================================================
+
+__BDD Based Model Counting:__
+
+```
+cd BDD_SAT
+python3 BMC_SAT.py dd_file ini_S tgt_S K
+
+```
